@@ -1,0 +1,71 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "metadata": {
+                "description": "Log Analytics Workspace Name"
+            },
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/b94371b5-54e2-4e9b-bc3d-be1af040d4ce')]",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/b94371b5-54e2-4e9b-bc3d-be1af040d4ce')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+            "kind": "Scheduled",
+            "properties": {
+                "incidentConfiguration": {
+                    "createIncident": true,
+                    "groupingConfiguration": {
+                        "enabled": true,
+                        "reopenClosedIncident": false,
+                        "lookbackDuration": "PT5H",
+                        "matchingMethod": "AllEntities",
+                    "groupByEntities": [],
+                "groupByAlertDetails": [],
+            "groupByCustomDetails": []
+        }
+    },
+    "entityMappings": [
+        {
+            "entityType": "Host",
+            "fieldMappings": [
+                {
+                    "identifier": "HostName",
+                    "columnName": "DeviceName"
+                }
+            ]
+        },
+        {
+            "entityType": "Account",
+            "fieldMappings": [
+                {
+                    "identifier": "AadUserId",
+                    "columnName": "InitiatingProcessAccountUpn"
+                }
+            ]
+        }
+    ],
+    "queryFrequency": "PT1H",
+    "queryPeriod": "PT1H",
+    "triggerOperator": "GreaterThan",
+    "triggerThreshold": 0,
+    "eventGroupingSettings": {
+        "aggregationKind": "SingleAlert"
+    },
+    "severity": "Informational",
+    "query": "union isfuzzy=true\r\n(DeviceEvents\r\n| where FileName endswith \".iso\" or FileName endswith \".vhd\" or FileName endswith \".iso.lnk\" or FileName endswith \".vhd.lnk\"),\r\n(DeviceFileEvents\r\n| where FileName endswith \".iso\" or FileName endswith \".vhd\" or FileName endswith \".iso.lnk\" or FileName endswith \".vhd.lnk\")",
+    "suppressionDuration": "PT5H",
+    "suppressionEnabled": false,
+"tactics": [],
+"displayName": "AS_0043_ISO or VHD accessed by Windows",
+"enabled": true,
+"description": "Alerts when an ISO or VHD is accessed.",
+"alertRuleTemplateName": null
+},
+"apiVersion": "2021-09-01-preview"
+}
+]
+}
