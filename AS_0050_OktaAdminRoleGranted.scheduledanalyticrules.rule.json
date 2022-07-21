@@ -1,0 +1,68 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String",
+            "metadata": {
+                "description": "Log Analytics Workspace Name"
+            }
+        }
+    },
+    "resources": [
+        {
+            "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/39da9522-9e44-4142-ae21-95610317e493')]",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/39da9522-9e44-4142-ae21-95610317e493')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+            "kind": "Scheduled",
+            "properties": {
+                "incidentConfiguration": {
+                    "createIncident": true,
+                    "groupingConfiguration": {
+                        "enabled": false,
+                        "reopenClosedIncident": false,
+                        "lookbackDuration": "PT5H",
+                        "matchingMethod": "AllEntities",
+                    "groupByEntities": [],
+                "groupByAlertDetails": [],
+            "groupByCustomDetails": []
+        }
+    },
+    "entityMappings": [
+        {
+            "entityType": "Account",
+            "fieldMappings": [
+                {
+                    "identifier": "Name",
+                    "columnName": "displayName_"
+                },
+                {
+                    "identifier": "AadUserId",
+                    "columnName": "alternateId_"
+                }
+            ]
+        }
+    ],
+    "queryFrequency": "PT1H",
+    "queryPeriod": "PT1H",
+    "triggerOperator": "GreaterThan",
+    "triggerThreshold": 0,
+    "eventGroupingSettings": {
+        "aggregationKind": "SingleAlert"
+    },
+    "severity": "High",
+    "query": "let oktaroles = dynamic([\"Super administrator\",\r\n\"Org administrator\",\r\n\"Group administrator\",\r\n\"App administrator\",\r\n\"Read-Only administrator\",\r\n\"Mobile administrator\",\r\n\"Help Desk administrator\",\r\n\"Report administrator\",\r\n\"API Access Management administrator\",\r\n\"Group Membership administrator\"]);\r\nOkta_CL\r\n| where debugContext_debugData_privilegeGranted_s has_any (oktaroles) or \r\n        debugContext_debugData_privilegeRevoked_s has_any (oktaroles)\r\n| where displayMessage_s == \"Grant user privilege\"\r\n| where outcome_result_s == \"SUCCESS\"\r\n| summarize by\r\nTimeGenerated,\r\ndisplayMessage_s,\r\nactor_alternateId_s,\r\nactor_displayName_s,\r\ndebugContext_debugData_privilegeGranted_s,\r\noutcome_result_s,\r\ntarget_s\r\n| extend displayName_ = tostring(parse_json(target_s)[0].displayName)\r\n| extend alternateId_ = tostring(parse_json(target_s)[0].alternateId)",
+    "suppressionDuration": "PT5H",
+    "suppressionEnabled": false,
+    "tactics": [
+        "PrivilegeEscalation"
+    ],
+    "displayName": "AS_0050_OktaAdminRoleGranted",
+    "enabled": true,
+    "description": "Alerts when an adminstrative role is assigned to an Okta users. AS-3-22-22",
+    "alertRuleTemplateName": null
+},
+"apiVersion": "2021-09-01-preview"
+}
+]
+}

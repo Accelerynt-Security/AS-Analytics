@@ -1,0 +1,68 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String",
+            "metadata": {
+                "description": "Log Analytics Workspace Name"
+            }
+        }
+    },
+    "resources": [
+        {
+            "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/230c11b8-19fc-4f30-afd3-9553f1029b57')]",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/230c11b8-19fc-4f30-afd3-9553f1029b57')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+            "kind": "Scheduled",
+            "properties": {
+                "incidentConfiguration": {
+                    "createIncident": true,
+                    "groupingConfiguration": {
+                        "enabled": false,
+                        "reopenClosedIncident": false,
+                        "lookbackDuration": "PT5H",
+                        "matchingMethod": "AllEntities",
+                    "groupByEntities": [],
+                "groupByAlertDetails": [],
+            "groupByCustomDetails": []
+        }
+    },
+    "entityMappings": [
+        {
+            "entityType": "Account",
+            "fieldMappings": [
+                {
+                    "identifier": "AadUserId",
+                    "columnName": "actor_alternateId_s"
+                },
+                {
+                    "identifier": "DisplayName",
+                    "columnName": "actor_displayName_s"
+                }
+            ]
+        }
+    ],
+    "queryFrequency": "PT1H",
+    "queryPeriod": "PT1H",
+    "triggerOperator": "GreaterThan",
+    "triggerThreshold": 0,
+    "eventGroupingSettings": {
+        "aggregationKind": "SingleAlert"
+    },
+    "severity": "Informational",
+    "query": "Okta_CL\r\n  | where eventType_s == \"system.api_token.create\"\r\n  | where outcome_result_s == \"SUCCESS\"",
+    "suppressionDuration": "PT5H",
+    "suppressionEnabled": false,
+    "tactics": [
+        "ResourceDevelopment"
+    ],
+    "displayName": "AS_0051_OKTA_APITokenCreated",
+    "enabled": true,
+    "description": "Alerts when an API Token is created.",
+    "alertRuleTemplateName": null
+},
+"apiVersion": "2021-09-01-preview"
+}
+]
+}

@@ -1,0 +1,75 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String",
+            "metadata": {
+                "description": "Log Analytics Workspace Name"
+            }
+        }
+    },
+    "resources": [
+        {
+            "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/b0f86788-f39a-435b-87d4-c7e3b6394aa8')]",
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/b0f86788-f39a-435b-87d4-c7e3b6394aa8')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+            "kind": "Scheduled",
+            "properties": {
+                "incidentConfiguration": {
+                    "createIncident": true,
+                    "groupingConfiguration": {
+                        "enabled": false,
+                        "reopenClosedIncident": false,
+                        "lookbackDuration": "PT5H",
+                        "matchingMethod": "AllEntities",
+                    "groupByEntities": [],
+                "groupByAlertDetails": [],
+            "groupByCustomDetails": []
+        }
+    },
+    "entityMappings": [
+        {
+            "entityType": "Account",
+            "fieldMappings": [
+                {
+                    "identifier": "AadUserId",
+                    "columnName": "actor_alternateId_s"
+                },
+                {
+                    "identifier": "DisplayName",
+                    "columnName": "actor_displayName_s"
+                }
+            ]
+        },
+        {
+            "entityType": "IP",
+            "fieldMappings": [
+                {
+                    "identifier": "Address",
+                    "columnName": "client_ipAddress_s"
+                }
+            ]
+        }
+    ],
+    "queryFrequency": "PT1H",
+    "queryPeriod": "PT1H",
+    "triggerOperator": "GreaterThan",
+    "triggerThreshold": 0,
+    "eventGroupingSettings": {
+        "aggregationKind": "SingleAlert"
+    },
+    "severity": "Informational",
+    "query": "Okta_CL\r\n| where eventType_s == \"zone.update\"\r\n| where outcome_result_s == \"SUCCESS\"",
+    "suppressionDuration": "PT5H",
+    "suppressionEnabled": false,
+"tactics": [],
+"displayName": "AS_0053_Okta_NetworkZoneUpdate",
+"enabled": true,
+"description": "Alerts when an Okta Network Zone is updated.",
+"alertRuleTemplateName": null
+},
+"apiVersion": "2021-09-01-preview"
+}
+]
+}
